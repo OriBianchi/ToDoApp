@@ -7,7 +7,17 @@ window.addEventListener('load', function() {
     /* -------------------------------------------------------------------------- */
     const form = document.querySelector('form');
     form.addEventListener('submit', function(event) {
+
         // Capturamos los datos del formulario
+        const nombre = document.querySelector('#inputNombre').value;
+        const apellido = document.querySelector('#inputApellido').value;
+        const email = document.querySelector('#inputEmail').value;
+        const contrasenia = document.querySelector('#inputPassword').value;
+
+        console.log(nombre);
+
+        realizarRegister(nombre, apellido, email, contrasenia)
+        event.preventDefault();
         // Llamamos a la API en realizarRegister
         // Si el registro se hizo ok, guardamos el token en 'localStorage'
     });
@@ -15,35 +25,78 @@ window.addEventListener('load', function() {
     /* -------------------------------------------------------------------------- */
     /*                    FUNCIÓN 2: Realizar el signup [POST]                    */
     /* -------------------------------------------------------------------------- */
-    function realizarRegister(settings) {
+    const apiUrl = 'https://ctd-todo-api.herokuapp.com/v1/users';
+
+    function realizarRegister(nom, ape, em, con) {
+
+        const json = JSON.stringify({
+            firstName: nom,
+            lastName: ape,
+            email: em,
+            password: con
+        });
+        console.log(json);
+        fetch(apiUrl, {
+                method: 'POST',
+                body: json,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
 
     };
 
     document.querySelector('#inputNombre').addEventListener('keypress', (e) => {
-        if (validarNombre(e.key) == false) {
-            const error = mostrarMensajeEnElemento('El campo nombre no se admiten números.');
-            e.target.parentNode.appendChild(error);
+        if (!validarNombre(e.key)) {
+            if (!this.document.querySelector('#errorNombre')) {
+                const error = mostrarMensajeEnElemento('El campo nombre no se admiten números.');
+                error.setAttribute("id", "errorNombre")
+                e.target.parentNode.appendChild(error);
+            }
             e.preventDefault();
+        } else {
+            if (this.document.querySelector('#errorNombre')) {
+                e.target.parentNode.removeChild(document.querySelector("#errorNombre"));
+            }
         }
     });
 
+
     document.querySelector('#inputApellido').addEventListener('keypress', (e) => {
-        if (validarNombre(e.key) == false) {
-            const error = mostrarMensajeEnElemento('El campo apellido no se admiten números.');
-            e.target.parentNode.appendChild(error);
+
+        if (!validarNombre(e.key)) {
+            if (!this.document.querySelector('#errorApellido')) {
+                const error = mostrarMensajeEnElemento('El campo apellido no se admiten números.');
+                error.setAttribute("id", "errorApellido")
+                e.target.parentNode.appendChild(error);
+            }
             e.preventDefault();
+        } else {
+            if (this.document.querySelector('#errorApellido')) {
+                e.target.parentNode.removeChild(document.querySelector("#errorApellido"));
+            }
         }
     });
 
     document.querySelector('#inputEmail').addEventListener('blur', (e) => {
-        if (validarEmail(e.target.value) == false) {
-            // TODO - falta quitar el mensaje cuando esta bien
-            const error = mostrarMensajeEnElemento('El campo email no tiene el formato correcto.');
-            error.setAttribute("id","errorEmail")
-            e.target.parentNode.appendChild(error);
-            e.preventDefault();
+        if (!this.document.querySelector('#errorEmail')) {
+            if (validarEmail(e.target.value) == false) {
+                // TODO - falta quitar el mensaje cuando esta bien
+                const error = mostrarMensajeEnElemento('El campo email no tiene el formato correcto.');
+                error.setAttribute("id", "errorEmail")
+                e.target.parentNode.appendChild(error);
+                e.preventDefault();
+            }
+
         } else {
-            e.target.parentNode.removeChild(document.querySelector("#errorEmail"));
+            if (this.document.querySelector('#errorEmail'))
+                e.target.parentNode.removeChild(document.querySelector("#errorEmail"));
         }
 
     });
